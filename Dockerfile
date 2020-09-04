@@ -9,6 +9,7 @@ RUN apt-get update &&\
 RUN npm install -g n
 RUN n latest
 
+COPY . /app
 WORKDIR /app
 
 CMD ["npm", "start"]
