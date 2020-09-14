@@ -4,17 +4,20 @@ const DiagnosticStatus = rosnodejs.require('diagnostic_msgs').msg
 const DiagnosticArray = rosnodejs.require('diagnostic_msgs').msg
   .DiagnosticArray;
 
+const SERIAL_PORT = process.env.SERIAL_PORT || '/dev/ttyACM0';
+const ROS_TOPIC = process.env.ROS_TOPIC || '/cmd_vel';
+
 const SerialPort = require('serialport');
-const MockBinding = require('@serialport/binding-mock');
-SerialPort.Binding = MockBinding;
-MockBinding.createPort('/dev/ttyACM0');
-const serialPort = new SerialPort('/dev/ttyACM0', {
+//const MockBinding = require('@serialport/binding-mock');
+//SerialPort.Binding = MockBinding;
+//MockBinding.createPort('/dev/ttyACM0');
+const serialPort = new SerialPort(SERIAL_PORT, {
   autoOpen: false,
-  baudRate: 256000,
+  baudRate: 9600,
 });
 
-const nodeName = '/sabertooth_2x32_usb';
-const cmd_vel_topic = '/cmd_vel';
+const nodeName = `/sabertooth_motor`;
+const cmd_vel_topic = ROS_TOPIC;
 
 var keepAlive = new Date();
 var alive = false;
@@ -51,6 +54,7 @@ function createNode(diagnostics, rosNode) {
     console.log(sub.getTopic(), sub.getNumPublishers());
   });
   sendDiagnostics(diagnostics, 0, 'Motor driver started');
+  serialPort.write('MD: 500\n');
 }
 
 function drive(diagnostics, speed, direction) {
@@ -65,18 +69,14 @@ function drive(diagnostics, speed, direction) {
   }
   console.log('linear.x', speed, 'angular.z', direction);
 
-  // Sabertooth plain text serial send numbers -1023 to 1023 (?not sure of range?)
-  // TODO: THIS IS NOT A GOOD FORMULA and LEFT AND RIGHT MAY BE REVERSED
-  leftSpeed = Math.round((speed + direction * 0.25) * 1023);
-  rightSpeed = Math.round((speed - direction * 0.25) * 1023);
-  leftMotor = 'M1';
-  rightMotor = 'M2';
-  leftMotorCommand = `${leftMotor}: ${leftSpeed}`;
-  rightMotorCommand = `${rightMotor}: ${rightSpeed}`;
-  serialPort.write(leftMotorCommand);
-  console.log(leftMotorCommand);
-  serialPort.write(rightMotorCommand);
-  console.log(rightMotorCommand);
+  // Sabertooth plain text serial send numbers -2047 to 2047 MT: <- turn MD: <- speed
+  let driveSpeed = Math.round(speed * 2047);
+  let turnSpeed = Math.round(direction * 2047);
+  driveSpeedCommand = `MD: ${driveSpeed}\n`;
+  turnSpeedCommand = `MT: ${turnSpeed}\n`;
+  serialPort.write(`${driveSpeedCommand}${turnSpeedCommand}`);
+  console.log(driveSpeedCommand);
+  console.log(turnSpeedCommand);
 
   // Update keep alive
   keepAlive = new Date();

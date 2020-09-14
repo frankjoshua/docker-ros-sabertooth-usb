@@ -1,3 +1,3 @@
 #!/bin/bash
-
-docker build . -t frankjoshua/ros-sabertooth-usb:arm64
+ARCH=`uname -m`
+docker build . -t frankjoshua/ros-sabertooth-usb:$ARCH
