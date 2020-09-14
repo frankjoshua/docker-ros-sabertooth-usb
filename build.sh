@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build . -t frankjoshua/ros-sabertooth-usb
+docker build . -t frankjoshua/ros-sabertooth-usb:arm64
