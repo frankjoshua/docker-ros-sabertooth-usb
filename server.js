@@ -54,7 +54,6 @@ function createNode(diagnostics, rosNode) {
     console.log(sub.getTopic(), sub.getNumPublishers());
   });
   sendDiagnostics(diagnostics, 0, 'Motor driver started');
-  serialPort.write('MD: 500\n');
 }
 
 function drive(diagnostics, speed, direction) {
@@ -71,7 +70,7 @@ function drive(diagnostics, speed, direction) {
 
   // Sabertooth plain text serial send numbers -2047 to 2047 MT: <- turn MD: <- speed
   let driveSpeed = Math.round(speed * 2047);
-  let turnSpeed = Math.round(direction * 2047);
+  let turnSpeed = Math.round(-direction * 2047);
   driveSpeedCommand = `MD: ${driveSpeed}\n`;
   turnSpeedCommand = `MT: ${turnSpeed}\n`;
   serialPort.write(`${driveSpeedCommand}${turnSpeedCommand}`);
