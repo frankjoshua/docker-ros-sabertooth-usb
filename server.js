@@ -6,11 +6,14 @@ const DiagnosticArray = rosnodejs.require('diagnostic_msgs').msg
 
 const SERIAL_PORT = process.env.SERIAL_PORT || '/dev/ttyACM0';
 const ROS_TOPIC = process.env.ROS_TOPIC || '/cmd_vel';
+const MOCK_SERIAL = process.env.MOCK_SERIAL || false;
 
 const SerialPort = require('serialport');
-//const MockBinding = require('@serialport/binding-mock');
-//SerialPort.Binding = MockBinding;
-//MockBinding.createPort('/dev/ttyACM0');
+if (MOCK_SERIAL) {
+  const MockBinding = require('@serialport/binding-mock');
+  SerialPort.Binding = MockBinding;
+  MockBinding.createPort(SERIAL_PORT);
+}
 const serialPort = new SerialPort(SERIAL_PORT, {
   autoOpen: false,
   baudRate: 9600,
