@@ -6,6 +6,7 @@ const DiagnosticArray = rosnodejs.require('diagnostic_msgs').msg
 
 const SERIAL_PORT = process.env.SERIAL_PORT || '/dev/ttyACM0';
 const ROS_TOPIC = process.env.ROS_TOPIC || '/cmd_vel';
+const ROS_NODE = process.env.ROS_NODE || '/sabertooth_motor';
 const MOCK_SERIAL = process.env.MOCK_SERIAL || false;
 
 const SerialPort = require('serialport');
@@ -19,7 +20,7 @@ const serialPort = new SerialPort(SERIAL_PORT, {
   baudRate: 9600,
 });
 
-const nodeName = `/sabertooth_motor`;
+const nodeName = ROS_NODE;
 const cmd_vel_topic = ROS_TOPIC;
 
 var keepAlive = new Date();
